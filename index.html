@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Expectation Field - Vue.js</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* CSS Variables */
+        :root {
+            --font-secondary: "Messina Sans Mono", monospace;
+            --white: #fffef4;
+            --grey: #909090;
+            --black: #000;
+            --green:#00ff6a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Neue Montreal";
+            background-color: var(--black);
+            color: var(--white);
+            margin: 0;
+            font-size: 1rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        @font-face {
+            font-family: "Neue Montreal";
+            src: url("https://studiofreight.com/fonts/NeueMontreal-Light.woff2") format("woff2");
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Neue Montreal";
+            src: url("https://studiofreight.com/fonts/NeueMontreal-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Neue Montreal";
+            src: url("https://studiofreight.com/fonts/NeueMontreal-Bold.woff2") format("woff2");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Messina Sans Mono */
+        @font-face {
+            font-family: "Messina Sans Mono";
+            src: url("https://studiofreight.com/fonts/MessinaSansMono-Regular.woff2") format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "Messina Sans Mono";
+            src: url("https://studiofreight.com/fonts/MessinaSansMono-SemiBold.woff2") format("woff2");
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* GT Alpina Thin Italic */
+        @font-face {
+            font-family: "GT Alpina";
+            src: url("https://studiofreight.com/fonts/GTAlpina-ThIt.woff2") format("woff2");
+            font-weight: 200;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        a, button, input, select, textarea {
+            cursor:pointer
+        }
+
+        /* Wrapper */
+        .input-fields_wrapper__ovpTC {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Label */
+        .input-fields_label__dkcJc {
+            font-family: var(--font-secondary);
+            margin-bottom: 2.1333333333vw;
+        }
+
+        @media(min-width:800px) {
+            .input-fields_label__dkcJc {
+                margin-bottom: 0.5555555556vw;
+            }
+        }
+
+        /* Small text */
+        .p-xs {
+            font-size: 1rem;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 125%;
+        }
+
+        @media(min-width:800px) {
+            .p-xs {
+                font-size: 1rem;
+            }
+        }
+
+        /* Text utilities */
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-muted {
+            color: var(--grey);
+        }
+
+        /* Select trigger button */
+        .select_trigger__UEIj_ {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            line-height: 1;
+            background-color: transparent;
+            border: 1px solid var(--white);
+            color: var(--white);
+            width: 36rem;
+            position: relative;
+            text-transform: uppercase;
+            padding: 4vw 4.2666666667vw;
+            height: 12.8vw;
+            border-radius: 2.1333333333vw;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        @media(min-width:800px) {
+            .select_trigger__UEIj_ {
+                padding: 1.0416666667vw 1.1111111111vw;
+                height: 3.3333333333vw;
+                border-radius: 0.5555555556vw;
+            }
+        }
+
+        /* Placeholder state */
+        .select_trigger__UEIj_.placeholder {
+            font-size: 4.2666666667vw;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 125%;
+            letter-spacing: 0.01em;
+            text-transform: uppercase;
+            color: var(--grey);
+        }
+
+        .select_trigger__UEIj_.selected {
+            border: 1px solid var(--green);
+        }
+
+        @media(min-width:800px) {
+            .select_trigger__UEIj_.placeholder {
+                line-height: 140%;
+                font-size: 1.1111111111vw;
+            }
+        }
+
+        /* Select icon */
+        .select_icon__hcwlA {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            width: 13.3333333333vw;
+            height: 8.5333333333vw;
+            margin: -1.3333333333vw -2.6666666667vw;
+            border-top-right-radius: 1.3333333333vw;
+            border-bottom-right-radius: 1.3333333333vw;
+            transition: transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .select_icon__hcwlA svg {
+            width: 16px;
+            height: 14px;
+            display: block;
+        }
+
+        /* Rotate arrow when dropdown is open */
+        .select_icon__hcwlA.open {
+            transform: rotate(180deg);
+        }
+
+        @media(min-width:800px) {
+            .select_icon__hcwlA {
+                width: 3.4722222222vw;
+                height: 2.2222222222vw;
+                margin: -0.3472222222vw -0.6944444444vw;
+                border-top-right-radius: 0.3472222222vw;
+                border-bottom-right-radius: 0.3472222222vw;
+            }
+        }
+
+        /* Hidden select */
+        select[aria-hidden="true"] {
+            position: absolute;
+            border: 0;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            word-wrap: normal;
+        }
+
+        /* Dropdown options */
+        .select_options {
+            position: absolute;
+            top: 0%;
+            left: 0;
+            right: 0;
+            background-color: var(--black);
+            border: 1px solid var(--white);
+            margin-top: -1px;
+            z-index: 1000;
+            display: none;
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 0.7rem;
+            max-width: 500px;
+            padding-top: 1rem;
+        }
+
+        .select_options.open {
+            display: block;
+        }
+
+        .select_option {
+            padding: 4vw 4.2666666667vw;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+        }
+
+        @media(min-width:800px) {
+            .select_option {
+                padding: 1.0416666667vw 1.1111111111vw;
+                font-size: 1rem;
+            }
+        }
+
+        .select_option:hover {
+            background-color: var(--white);
+            color:var(--black);
+        }
+        
+        .select_option.selected {
+            background-color: var(--white);
+            color:var(--black)
+        }
+
+        #selected-text {
+            font-family: "Neue Montreal";
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <budget-select></budget-select>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            components: {
+                'budget-select': {
+                    data() {
+                        return {
+                            isOpen: false,
+                            selectedValue: '',
+                            options: [
+                                'Less than $50k',
+                                '$50k - $150k',
+                                '$150 - $300k',
+                                '$300- $500k'
+                            ]
+                        };
+                    },
+                    computed: {
+                        displayText() {
+                            return this.selectedValue || 'Select One';
+                        },
+                        isPlaceholder() {
+                            return !this.selectedValue;
+                        }
+                    },
+                    methods: {
+                        toggleDropdown() {
+                            this.isOpen = !this.isOpen;
+                        },
+                        selectOption(value) {
+                            this.selectedValue = value;
+                            this.isOpen = false;
+                        },
+                        closeDropdown() {
+                            this.isOpen = false;
+                        },
+                        handleClickOutside(event) {
+                            if (!this.$el.contains(event.target)) {
+                                this.closeDropdown();
+                            }
+                        },
+                        handleEscape(event) {
+                            if (event.key === 'Escape') {
+                                this.closeDropdown();
+                            }
+                        }
+                    },
+                    mounted() {
+                        document.addEventListener('click', this.handleClickOutside);
+                        document.addEventListener('keydown', this.handleEscape);
+                    },
+                    beforeUnmount() {
+                        document.removeEventListener('click', this.handleClickOutside);
+                        document.removeEventListener('keydown', this.handleEscape);
+                    },
+                    template: `
+                        <div class="input-fields_wrapper__ovpTC">
+                            <label for="budget_expectation" class="input-fields_label__dkcJc p-xs text-uppercase text-muted">
+                                Budget Expectation*
+                            </label>
+                            <button 
+                                type="button" 
+                                role="combobox" 
+                                :aria-controls="'budget-options'" 
+                                :aria-expanded="isOpen.toString()" 
+                                aria-required="true" 
+                                aria-autocomplete="none" 
+                                dir="ltr" 
+                                :data-state="isOpen ? 'open' : 'closed'" 
+                                :class="['select_trigger__UEIj_', { 'placeholder': isPlaceholder, 'selected': !isPlaceholder }]"
+                                @click="toggleDropdown"
+                            >
+                                <span style="pointer-events:none" id="selected-text">{{ displayText }}</span>
+                                <span aria-hidden="true" :class="['select_icon__hcwlA', { 'open': isOpen }]">
+                                    <svg viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 14 .2.5h15.6z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </button>
+                            
+                            <div :class="['select_options', { 'open': isOpen }]" id="budget-options" role="listbox">
+                                <div 
+                                    v-for="option in options" 
+                                    :key="option"
+                                    :class="['select_option', { 'selected': selectedValue === option }]"
+                                    role="option" 
+                                    :data-value="option"
+                                    @click="selectOption(option)"
+                                >
+                                    {{ option }}
+                                </div>
+                            </div>
+                            
+                            <select 
+                                aria-hidden="true" 
+                                required 
+                                tabindex="-1" 
+                                name="budget_expectation" 
+                                id="budget_expectation"
+                                v-model="selectedValue"
+                            >
+                                <option value=""></option>
+                                <option v-for="option in options" :key="option" :value="option">
+                                    {{ option }}
+                                </option>
+                            </select>
+                        </div>
+                    `
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
