@@ -268,7 +268,8 @@
             }
         }
 
-        .select_option:hover {
+        .select_option:hover,
+        .select_option.focused {
             background-color: var(--white);
             color:var(--black);
         }
@@ -299,6 +300,7 @@
                         return {
                             isOpen: false,
                             selectedValue: '',
+                            focusedIndex: -1,
                             options: [
                                 'Less than $50k',
                                 '$50k - $150k',
@@ -318,32 +320,103 @@
                     methods: {
                         toggleDropdown() {
                             this.isOpen = !this.isOpen;
+                            if (this.isOpen) {
+                                // Set focus to currently selected option or first option
+                                const selectedIndex = this.options.indexOf(this.selectedValue);
+                                this.focusedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+                                this.$nextTick(() => {
+                                    this.scrollToFocusedOption();
+                                });
+                            } else {
+                                this.focusedIndex = -1;
+                            }
                         },
                         selectOption(value) {
                             this.selectedValue = value;
                             this.isOpen = false;
+                            this.focusedIndex = -1;
                         },
                         closeDropdown() {
                             this.isOpen = false;
+                            this.focusedIndex = -1;
                         },
                         handleClickOutside(event) {
                             if (!this.$el.contains(event.target)) {
                                 this.closeDropdown();
                             }
                         },
-                        handleEscape(event) {
-                            if (event.key === 'Escape') {
-                                this.closeDropdown();
+                        handleKeydown(event) {
+                            if (!this.isOpen) {
+                                // Open dropdown with Enter, Space, or Arrow keys
+                                if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(event.key)) {
+                                    event.preventDefault();
+                                    this.toggleDropdown();
+                                }
+                                return;
                             }
+
+                            switch (event.key) {
+                                case 'Escape':
+                                    event.preventDefault();
+                                    this.closeDropdown();
+                                    break;
+                                    
+                                case 'ArrowDown':
+                                    event.preventDefault();
+                                    this.focusedIndex = Math.min(this.focusedIndex + 1, this.options.length - 1);
+                                    this.scrollToFocusedOption();
+                                    break;
+                                    
+                                case 'ArrowUp':
+                                    event.preventDefault();
+                                    this.focusedIndex = Math.max(this.focusedIndex - 1, 0);
+                                    this.scrollToFocusedOption();
+                                    break;
+                                    
+                                case 'Enter':
+                                case ' ':
+                                    event.preventDefault();
+                                    if (this.focusedIndex >= 0 && this.focusedIndex < this.options.length) {
+                                        this.selectOption(this.options[this.focusedIndex]);
+                                    }
+                                    break;
+                                    
+                                case 'Home':
+                                    event.preventDefault();
+                                    this.focusedIndex = 0;
+                                    this.scrollToFocusedOption();
+                                    break;
+                                    
+                                case 'End':
+                                    event.preventDefault();
+                                    this.focusedIndex = this.options.length - 1;
+                                    this.scrollToFocusedOption();
+                                    break;
+                            }
+                        },
+                        scrollToFocusedOption() {
+                            this.$nextTick(() => {
+                                const optionsContainer = this.$el.querySelector('.select_options');
+                                const focusedOption = this.$el.querySelectorAll('.select_option')[this.focusedIndex];
+                                
+                                if (focusedOption && optionsContainer) {
+                                    const containerRect = optionsContainer.getBoundingClientRect();
+                                    const optionRect = focusedOption.getBoundingClientRect();
+                                    
+                                    if (optionRect.bottom > containerRect.bottom) {
+                                        focusedOption.scrollIntoView({ block: 'end', behavior: 'smooth' });
+                                    } else if (optionRect.top < containerRect.top) {
+                                        focusedOption.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                                    }
+                                }
+                            });
                         }
                     },
                     mounted() {
                         document.addEventListener('click', this.handleClickOutside);
-                        document.addEventListener('keydown', this.handleEscape);
                     },
                     beforeUnmount() {
                         document.removeEventListener('click', this.handleClickOutside);
-                        document.removeEventListener('keydown', this.handleEscape);
                     },
                     template: `
                         <div class="input-fields_wrapper__ovpTC">
@@ -361,6 +434,7 @@
                                 :data-state="isOpen ? 'open' : 'closed'" 
                                 :class="['select_trigger__UEIj_', { 'placeholder': isPlaceholder, 'selected': !isPlaceholder }]"
                                 @click="toggleDropdown"
+                                @keydown="handleKeydown"
                             >
                                 <span style="pointer-events:none;font-family: 'Neue Montreal';font-weight: 700;" id="selected-text">{{ displayText }}</span>
                                 <span aria-hidden="true" :class="['select_icon__hcwlA', { 'open': isOpen }]">
@@ -372,12 +446,16 @@
                             
                             <div :class="['select_options', { 'open': isOpen }]" id="budget-options" role="listbox">
                                 <div 
-                                    v-for="option in options" 
+                                    v-for="(option, index) in options" 
                                     :key="option"
-                                    :class="['select_option', { 'selected': selectedValue === option }]"
+                                    :class="['select_option', { 
+                                        'selected': selectedValue === option,
+                                        'focused': focusedIndex === index 
+                                    }]"
                                     role="option" 
                                     :data-value="option"
                                     @click="selectOption(option)"
+                                    @mouseenter="focusedIndex = index"
                                 >
                                     {{ option }}
                                 </div>
