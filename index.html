@@ -279,7 +279,7 @@
         }
 
         #selected-text {
-            font-family: "Neue Montreal";
+            font-family: "Neue Montreal" !important;
             font-size: 1rem;
         }
     </style>
@@ -362,7 +362,7 @@
                                 :class="['select_trigger__UEIj_', { 'placeholder': isPlaceholder, 'selected': !isPlaceholder }]"
                                 @click="toggleDropdown"
                             >
-                                <span style="pointer-events:none" id="selected-text">{{ displayText }}</span>
+                                <span style="pointer-events:none;font-family: 'Neue Montreal';font-weight: 700;" id="selected-text">{{ displayText }}</span>
                                 <span aria-hidden="true" :class="['select_icon__hcwlA', { 'open': isOpen }]">
                                     <svg viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M8 14 .2.5h15.6z" fill="currentColor"></path>
